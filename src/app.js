@@ -4,7 +4,7 @@ const $ = id => document.getElementById(id);
 let storage;
 try { storage = window.localStorage; } catch { storage = null; }
 let state = readState(storage);
-const simulation = createSimulationWorkspace({ storage, onChange: () => { renderGraph(); renderInspector(); } });
+const simulation = createSimulationWorkspace({ storage, onChange: () => { render(); } });
 const svgNS = 'http://www.w3.org/2000/svg';
 function svgElement(tag, attrs, text) {
   const el = document.createElementNS(svgNS, tag);
@@ -58,7 +58,7 @@ function renderGraph() {
     node.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectNode(id); } });
     group.append(node);
   }
-  s.assumptions.forEach((a, i) => addNode(a.id, ...coordinates[i], 179, a.title, `${simulation.value(a.id, a.value)}  ·  ${a.confidence} confidence`, 'assumption'));
+  s.assumptions.forEach((a, i) => addNode(a.id, ...coordinates[i], 179, a.title, `${simulation.value(a.id, a.value)}  ·  ${simulation.confidence(a.id, a.confidence)} confidence`, 'assumption'));
   group.append(svgElement('circle', { cx: 400, cy: 249, r: 87, class: 'decision-halo' }));
   addNode('decision', 330, 219, 140, 'Your decision', s.decision, 'decision');
   s.outcomes.forEach((o, i) => addNode(o.id, 583, outcomeY[i], 181, o.title, o.subtitle, 'outcome'));
@@ -72,12 +72,14 @@ function renderInspector() {
   const a = s.assumptions.find(a => a.id === state.selectedId);
   const o = s.outcomes.find(o => o.id === state.selectedId);
   if (a) {
-    $('inspector-content').innerHTML = `<p class="eyebrow inspector-type">ASSUMPTION / ${String(s.assumptions.indexOf(a) + 1).padStart(2, '0')}</p><h2>${a.title}</h2><div class="big-value">${simulation.value(a.id, a.value)}</div><div class="confidence"><i class="${a.confidence.toLowerCase()}"></i>${a.confidence} confidence <span>EXAMPLE</span></div><p class="detail">${a.description}</p><div class="evidence"><p class="eyebrow">EVIDENCE TO LOOK FOR</p><p>${a.evidence}</p></div><p class="connected-label">CONNECTED TO</p><button id="follow-decision" class="connection-button">${s.decision}<span>→</span></button>`;
+    $('inspector-content').innerHTML = `<p class="eyebrow inspector-type">ASSUMPTION / ${String(s.assumptions.indexOf(a) + 1).padStart(2, '0')}</p><h2>${a.title}</h2><div class="big-value">${simulation.value(a.id, a.value)}</div><div class="confidence"><i class="${simulation.confidence(a.id, a.confidence).toLowerCase()}"></i>${simulation.confidence(a.id, a.confidence)} confidence <span>EXAMPLE</span></div><p class="detail">${a.description}</p><div class="evidence"><p class="eyebrow">EVIDENCE TO LOOK FOR</p><p id="inspector-evidence"></p></div><p class="connected-label">CONNECTED TO</p><button id="follow-decision" class="connection-button">${s.decision}<span>→</span></button>`;
+    $('inspector-evidence').textContent = simulation.evidence(a.id, a.evidence);
     $('follow-decision').addEventListener('click', () => selectNode('decision'));
   } else if (o) {
     $('inspector-content').innerHTML = `<p class="eyebrow inspector-type">STRATEGY PATH</p><h2>${o.title}</h2><div class="strategy-icon ${o.color}" aria-hidden="true">↗</div><p class="strategy-value">${o.value}</p><p class="detail">${o.detail}</p><div class="evidence"><p class="eyebrow">WHAT THIS MEANS</p><p>${s.id === 'launch' ? 'Run the launch model below to compare calculated net value and failure exposure. The strategy policy and constants are illustrative.' : 'This strategy is illustrative. This exploration has no numerical simulation yet.'}</p></div>`;
   } else {
-    $('inspector-content').innerHTML = `<p class="eyebrow inspector-type">DECISION NODE</p><h2>${s.decision}</h2><div class="strategy-icon mint" aria-hidden="true">◎</div><p class="detail">${s.question}</p><div class="evidence"><p class="eyebrow">THE SYSTEM VIEW</p><p>Four assumptions connect to this decision. Explore each one, then inspect the three alternative strategies.</p></div><p class="detail">${s.summary}</p>`;
+    $('inspector-content').innerHTML = `<p class="eyebrow inspector-type">DECISION NODE</p><h2>${s.decision}</h2><div class="strategy-icon mint" aria-hidden="true">◎</div><p id="inspector-question" class="detail"></p><div class="evidence"><p class="eyebrow">THE SYSTEM VIEW</p><p>Four assumptions connect to this decision. Explore each one, then inspect the three alternative strategies.</p></div><p class="detail">${s.summary}</p>`;
+    $('inspector-question').textContent = s.id === 'launch' ? simulation.metadata().question : s.question;
   }
 }
 function renderPaths() {
@@ -95,7 +97,7 @@ function render() {
   simulation.render(state.scenarioId, state.selectedId);
   renderScenarios();
   $('category').textContent = scenario().category;
-  $('question').textContent = scenario().question;
+  $('question').textContent = state.scenarioId === 'launch' ? simulation.metadata().question : scenario().question;
   $('scenario-summary').textContent = scenario().summary;
   renderGraph(); renderInspector(); renderPaths();
 }

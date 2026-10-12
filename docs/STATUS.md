@@ -1,31 +1,33 @@
 # Build status
 
-- Current checkpoint: 2 — Simulation completed.
-- Next checkpoint: 3 — Workbench.
+- Current checkpoint: 3 — Decision workbench completed.
+- Next checkpoint: 4 — Release.
 - Repository: https://github.com/Possible1Official/Codex-Project
-- Product: Signal Atlas, v0.2.0.
+- Product: Signal Atlas, v0.3.0.
 
 ## Completed
 
-- All foundation maps, inspectors, keyboard-selectable SVG nodes, strategy cards, zoom, and local workspace persistence remain available.
-- Launch-model assumption sliders update the map and inspector; inputs and seed persist with corrupt/denied storage recovery.
-- Seeded, paired Monte Carlo comparison across three explicit launch policies (1,000 draws in the UI).
-- Quarterly net-value P10–P90/median chart, mean net, positive-net run frequency, and expected unresolved failures.
-- Per-strategy one-at-a-time sensitivity table and diverging bars; strategy selection follows map/card selections.
-- Central-input cost breakdown, disclosure of equations and limitations, and docs/SIMULATION.md.
-- Changed inputs or seed hide old results and require a fresh run. Invalid seed entry disables running.
-- Unsupported resilience and AI-transition explorations explicitly retain illustrative maps without simulation.
-- No external dependencies, API keys, Vercel, or Supabase.
+- Foundation maps, zoom, inspector, keyboard selection, and workspace persistence retained.
+- Launch simulation, seeded comparisons, sensitivity, invalidation, and central balance sheets retained.
+- Strict custom launch-v1 model schema: title/question, four inputs, seed, five economic constants, four evidence notes, and Low/Medium/High confidence.
+- Custom economics propagate to simulation, balance sheets, sensitivity, disclosures, and exports; strategy policies and uncertainty remain fixed.
+- Applied-model autosave, migration from Step 2, a named local library (20 models), and explicit storage-failure reporting.
+- Model JSON export and bounded 64-KiB validated import; malformed/unsupported files preserve the current workspace.
+- Imported/user text is assigned through textContent or form values. Plain-text brief prevents active HTML/Markdown rendering.
+- Draft edit/apply/discard flow blocks runs and exports while edits are pending; model/input/seed changes invalidate results.
+- Portable decision brief with exact input/context/evidence snapshot, seed, constants, policies, uncertainty, results, sensitivity, equations, and limitations. Export reproduces the run and rejects stale/altered outputs.
+- Model title/question/evidence/confidence reflected in the workspace. Unsupported explorations remain clearly labelled.
+- No external dependencies, credentials, analytics, Vercel, or Supabase.
 
 ## Validation
 
-- PASS: npm run check — app, model, simulation engine, simulation UI, and server syntax.
-- PASS: npm test — 15/15 tests: four foundation state/model tests, ten simulation tests, and one HTTP integration test.
-- Numerical checks include independent balance sheet, policy effects, directional behavior, review tradeoffs, boundaries, repeatability, uncertainty limits, sensitivity, and persistence recovery.
-- HTTP integration follows every browser module import from app.js, verifies JavaScript/CSS/HTML delivery, and checks unlisted files return 404.
-- Example seed 12345 produces mean quarterly net values of approximately $23,223 (Accelerate), $5,439 (Controlled pilot), and $16,462 (Strengthen first). These are illustrative model outputs, not forecasts.
-- Browser visual and interaction verification remains pending: no browser-control tool is available in this session. No deployed site is claimed.
+- PASS: npm run check — syntax for all six browser modules and the server.
+- PASS: npm test — 23/23 tests: four foundation tests, ten simulation tests, eight workbench tests, and one HTTP integration test.
+- Workbench tests verify import bounds/schema rejection, non-executable text preservation, custom economics, detached snapshots, model/brief round trips, active/library persistence, storage denial, full-library atomic rejection, and stale/forged result rejection.
+- HTTP integration follows every browser module import and verifies all modules, CSS, and HTML are served; unlisted project files return 404.
+- PASS: git diff --check.
+- Browser visual, interaction, file-download, and responsive QA remains pending. No browser-control tool has been available in this session; no deployed site is claimed.
 
-## Step 3 instructions
+## Step 4 instructions
 
-Implement only the workbench checkpoint in docs/BUILD_PLAN.md. Read docs/SIMULATION.md before extending the model. Add validated custom decision models within an explicit supported schema (prefer adapting launch-v1 inputs/constants/policies rather than accepting arbitrary executable formulas), editable evidence and confidence, local save/import, and a portable decision brief export containing the input snapshot, model version, assumptions, evidence, seed, calculated results, and limitations. Treat imported/user-entered text as text, never executable HTML. Reject malformed or unsupported imports safely and preserve the previous workspace. Test validation, persistence, round trips, and brief consistency. Preserve map, inspector, keyboard access, seed reproducibility, and invalidation behavior. Update this file with actual checks, save to GitHub, then schedule exactly one Step 4 task seven minutes later after a successful harmless GitHub read. Do not duplicate an existing scheduled continuation. No Vercel or Supabase.
+Perform ONLY the release checkpoint from docs/BUILD_PLAN.md. Read README.md, docs/SIMULATION.md, and docs/WORKBENCH.md. Inspect current tools/runtime for the strongest available browser QA path, following applicable skill/environment instructions. Verify the complete model edit → apply → run → save → JSON export/import → rerun → brief flow, plus keyboard/mobile and invalid/error states. Fix observed issues and polish accessibility/responsive layouts. Add a usable quick-start/demo flow and deployment options that do not use Vercel or Supabase. Prepare a reviewable release artifact or PR in GitHub (do not merge or claim deployment without evidence). Record exact verification and remaining limits in docs/STATUS.md. Preserve user authorization and the staged scope; this is the final checkpoint. Finish with links, validation evidence, and limitations. Do not schedule another build task.

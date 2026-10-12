@@ -27,6 +27,7 @@ test('HTTP serves the complete browser module graph and rejects unlisted project
     }
     await visit('/src/app.js');
     assert.ok(visited.has('/src/simulation.js')); assert.ok(visited.has('/src/simulation-ui.js'));
+    assert.ok(visited.has('/src/workbench.js')); assert.ok(visited.has('/src/workbench-ui.js'));
     const css = await fetch(`${url}/src/style.css`); assert.equal(css.status, 200); assert.ok(css.headers.get('content-type').startsWith('text/css'));
     for (const p of ['/missing','/package.json','/docs/STATUS.md','/.git/config']) assert.equal((await fetch(`${url}${p}`)).status,404);
   } finally { child.kill(); await exited; }

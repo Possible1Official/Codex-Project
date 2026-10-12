@@ -1,3 +1,5 @@
+import { createWorkbench } from './workbench-ui.js';
+import { defaultModel, readActiveModel, saveActiveModel, validateModel } from './workbench.js';
 import { INPUTS, STRATEGIES, readSimulationState, saveSimulationState, formatInput, uncertaintyBounds, simulate, sensitivity } from './simulation.js';
 const $ = id => document.getElementById(id);
 const money = value => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
@@ -12,6 +14,12 @@ function svg(tag, attrs, text) {
 }
 export function createSimulationWorkspace({ storage, onChange }) {
   let { inputs, seed } = readSimulationState(storage);
+  const savedModel = readActiveModel(storage);
+  let model;
+  try { model = savedModel || validateModel(defaultModel(inputs, seed)); } catch { model = defaultModel(); inputs = {...model.inputs}; seed = model.seed; }
+  if (savedModel) { inputs = {...savedModel.inputs}; seed = savedModel.seed; }
+  let pendingDraft = false;
+  let workbench;
   let result = null;
   let strategyId = 'accelerate';
   let activeScenario = 'launch';
@@ -24,13 +32,22 @@ export function createSimulationWorkspace({ storage, onChange }) {
     const slider = $(`input-${input.id}`);
     slider.value = inputs[input.id];
     slider.addEventListener('input', () => {
+      workbench?.cancelPendingImport();
       inputs[input.id] = Number(slider.value);
       invalidate('Inputs changed. Run again to compare these assumptions.');
       updateControls(); persist(); onChange();
     });
   }
   $('simulation-seed').value = seed;
-  function persist() { $('simulation-storage').textContent = saveSimulationState(storage, inputs, seed) ? 'Inputs saved on this device' : 'Inputs are session-only: browser storage unavailable'; }
+  function snapshot() { return validateModel({...model, inputs: {...inputs}, seed}); }
+  function persist() {
+    const savedInputs = saveSimulationState(storage, inputs, seed);
+    const savedModel = saveActiveModel(storage, snapshot());
+    $('simulation-storage').textContent = savedInputs && savedModel ? 'Applied model saved on this device' : 'Session only: export model JSON to keep your work';
+    $('model-current-name').textContent = `Applied model: ${model.title}`;
+    const c = model.constants;
+    $('model-constants-current').textContent = `Current model: ${c.eligibleTasks.toLocaleString('en-US')} eligible tasks; $${c.valuePerSuccess} per success; $${c.lossPerFailure} per unresolved failure; $${c.reviewCost} per review; ${(c.reviewEffectiveness * 100).toFixed(0)}% review effectiveness.`;
+  }
   function updateControls() {
     for (const input of INPUTS) {
       const slider = $(`input-${input.id}`);
@@ -46,28 +63,31 @@ export function createSimulationWorkspace({ storage, onChange }) {
     $('simulation-empty').hidden = false;
     $('simulation-empty').textContent = message;
     $('run-status').textContent = message;
+    workbench?.refresh();
   }
   $('simulation-seed').addEventListener('input', () => {
+    workbench?.cancelPendingImport();
     const field = $('simulation-seed');
     const valid = field.value.trim() !== '' && field.checkValidity();
-    $('simulation-run').disabled = !valid;
+    $('simulation-run').disabled = !valid || pendingDraft;
     invalidate(valid ? 'Seed changed. Run again to use it.' : 'Enter a whole-number seed from 0 to 4294967295.');
     if (valid) { seed = Number(field.value); persist(); }
   });
   $('simulation-reset').addEventListener('click', () => {
+    workbench?.cancelPendingImport();
     inputs = Object.fromEntries(INPUTS.map(i => [i.id, i.baseline])); seed = 12345;
     for (const input of INPUTS) $(`input-${input.id}`).value = inputs[input.id];
-    $('simulation-seed').value = seed; $('simulation-run').disabled = false;
+    $('simulation-seed').value = seed; $('simulation-run').disabled = pendingDraft;
     invalidate('Example assumptions restored. Run to explore their tradeoffs.');
     updateControls(); persist(); onChange();
   });
   $('simulation-run').addEventListener('click', () => {
-    if (!$('simulation-seed').checkValidity() || $('simulation-seed').value.trim() === '') return;
+    if (pendingDraft || !$('simulation-seed').checkValidity() || $('simulation-seed').value.trim() === '') return;
     try {
       seed = Number($('simulation-seed').value);
-      result = simulate(inputs, { seed });
+      result = simulate(inputs, { seed, constants: model.constants });
       $('simulation-empty').hidden = true; $('simulation-results').hidden = false;
-      renderResults(); persist();
+      renderResults(); persist(); workbench?.refresh();
       $('run-status').textContent = `Completed ${number(result.samples)} draws using seed ${result.seed}. Results match the current inputs.`;
     } catch {
       invalidate('The run could not complete. Reset the example inputs and try again.');
@@ -75,7 +95,7 @@ export function createSimulationWorkspace({ storage, onChange }) {
   });
   $('sensitivity-strategy').addEventListener('change', () => { strategyId = $('sensitivity-strategy').value; if (result) renderSensitivity(); });
   function renderResults() {
-    $('run-caption').textContent = `${result.modelVersion} · ${number(result.samples)} paired draws · seed ${result.seed} · one quarter`;
+    $('run-caption').textContent = `${model.title} · ${result.modelVersion} · ${number(result.samples)} paired draws · seed ${result.seed} · one quarter`;
     const body = $('comparison-body'); body.replaceChildren();
     for (const r of result.strategies) {
       const strategy = STRATEGIES.find(s => s.id === r.id);
@@ -113,7 +133,7 @@ export function createSimulationWorkspace({ storage, onChange }) {
   }
   function renderSensitivity() {
     $('sensitivity-strategy').value = strategyId;
-    const rows = sensitivity(result.inputs, strategyId);
+    const rows = sensitivity(result.inputs, strategyId, result.constants);
     const max = Math.max(1, ...rows.flatMap(r => [Math.abs(r.lowDelta), Math.abs(r.highDelta)]));
     const body = $('sensitivity-body'); body.replaceChildren();
     for (const r of rows) {
@@ -130,13 +150,35 @@ export function createSimulationWorkspace({ storage, onChange }) {
     }
     $('sensitivity-note').textContent = `Largest net-value swing: ${rows[0].label} (${money(rows[0].swing)} over the stated range). Each row varies one input while holding the others at their central values. These ranges differ by assumption; this is not a causal attribution or uncertainty ranking.`;
   }
+  workbench = createWorkbench({
+    storage, getModel: snapshot, getResult: () => result,
+    canUseModel: () => $('simulation-seed').checkValidity() && $('simulation-seed').value.trim() !== '',
+    onDraft: dirty => {
+      pendingDraft = dirty;
+      $('simulation-run').disabled = dirty || !$('simulation-seed').checkValidity();
+      if (dirty) invalidate('Model edits pending. Apply or discard the draft before running.');
+      else if (!result) invalidate('Applied model ready. Run to compare its strategies.');
+    },
+    applyModel: candidate => {
+      const valid = validateModel(candidate);
+      model = valid; inputs = {...valid.inputs}; seed = valid.seed;
+      for (const i of INPUTS) $(`input-${i.id}`).value = inputs[i.id];
+      $('simulation-seed').value = seed;
+      invalidate('Model changed. Run again to compare its strategies.');
+      updateControls(); persist(); onChange();
+    }
+  });
   updateControls(); persist();
   return {
+    metadata: () => snapshot(),
+    confidence: (id, fallback) => activeScenario === 'launch' ? model.evidence[id]?.confidence || fallback : fallback,
+    evidence: (id, fallback) => activeScenario === 'launch' ? model.evidence[id]?.note || 'No evidence recorded for this assumption.' : fallback,
     value: (id, fallback) => activeScenario === 'launch' && id in inputs ? formatInput(id, inputs[id]) : fallback,
     render: (scenarioId, selectedId) => {
       activeScenario = scenarioId;
       const supported = scenarioId === 'launch';
       $('simulation-supported').hidden = !supported;
+      $('workbench-section').hidden = !supported;
       $('simulation-unsupported').hidden = supported;
       if (STRATEGIES.some(s => s.id === selectedId)) { strategyId = selectedId; if (result) renderSensitivity(); }
       $('simulation-model-badge').textContent = supported ? 'LAUNCH MODEL V1' : 'EXPLORATION ONLY';

@@ -68,3 +68,9 @@ The input ranges have different units and widths. This analysis is a local stres
 No external data calibrates this model. It excludes correlated uncertainty, catastrophic events, demand dynamics, repeated attempts, reliability learning curves, queueing and review capacity, taxes, discounting, revenue dynamics, and subsequent quarters. Monetary valuation of failures may not capture safety or reputational harm. Uncertainty widths are fixed examples, not derived from evidence.
 
 Automated tests cover independent balance-sheet calculations, strategy policies, directional behavior, review tradeoffs, extrema, reproducibility, finite boundaries, uncertainty bounds, sensitivity endpoints, corrupt/denied persistence, and HTTP delivery of the complete browser module graph. Browser visual and interaction verification remains pending.
+
+## Checkpoint 3: custom constants
+
+The workbench now accepts validated custom task volume, successful-task value, failure loss, review cost, and review effectiveness. The equations above generalize their example literals to the corresponding constants. Strategy policies, input ranges, uncertainty widths, and sensitivity perturbations remain fixed. Each calculated result now contains its own detached constants snapshot; sensitivity and brief reproduction use that snapshot. The disclosed current constants update with the applied model. Confidence remains metadata.
+
+See docs/WORKBENCH.md for the supported schema and ranges. Legacy default-model outputs are numerically unchanged. The example values above remain examples, not fixed constants for custom models.
