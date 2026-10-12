@@ -67,7 +67,7 @@ The input ranges have different units and widths. This analysis is a local stres
 
 No external data calibrates this model. It excludes correlated uncertainty, catastrophic events, demand dynamics, repeated attempts, reliability learning curves, queueing and review capacity, taxes, discounting, revenue dynamics, and subsequent quarters. Monetary valuation of failures may not capture safety or reputational harm. Uncertainty widths are fixed examples, not derived from evidence.
 
-Automated tests cover independent balance-sheet calculations, strategy policies, directional behavior, review tradeoffs, extrema, reproducibility, finite boundaries, uncertainty bounds, sensitivity endpoints, corrupt/denied persistence, and HTTP delivery of the complete browser module graph. Browser visual and interaction verification remains pending.
+Automated tests cover independent balance-sheet calculations, strategy policies, directional behavior, review tradeoffs, extrema, reproducibility, finite boundaries, uncertainty bounds, sensitivity endpoints, corrupt/denied persistence, and HTTP delivery of the complete browser module graph. The release browser flow and visual review passed in Chromium; see docs/VERIFICATION.md for evidence and limits.
 
 ## Checkpoint 3: custom constants
 

@@ -1,33 +1,34 @@
 # Build status
 
-- Current checkpoint: 3 — Decision workbench completed.
-- Next checkpoint: 4 — Release.
+- Current checkpoint: 4 — Release checkpoint completed.
+- Next checkpoint: none; all four staged checkpoints are complete.
 - Repository: https://github.com/Possible1Official/Codex-Project
-- Product: Signal Atlas, v0.3.0.
+- Release branch: release/signal-atlas-v0.4 (reviewable, unmerged).
+- Product: Signal Atlas, v0.4.0 release candidate.
 
-## Completed
+## Delivered
 
-- Foundation maps, zoom, inspector, keyboard selection, and workspace persistence retained.
-- Launch simulation, seeded comparisons, sensitivity, invalidation, and central balance sheets retained.
-- Strict custom launch-v1 model schema: title/question, four inputs, seed, five economic constants, four evidence notes, and Low/Medium/High confidence.
-- Custom economics propagate to simulation, balance sheets, sensitivity, disclosures, and exports; strategy policies and uncertainty remain fixed.
-- Applied-model autosave, migration from Step 2, a named local library (20 models), and explicit storage-failure reporting.
-- Model JSON export and bounded 64-KiB validated import; malformed/unsupported files preserve the current workspace.
-- Imported/user text is assigned through textContent or form values. Plain-text brief prevents active HTML/Markdown rendering.
-- Draft edit/apply/discard flow blocks runs and exports while edits are pending; model/input/seed changes invalidate results.
-- Portable decision brief with exact input/context/evidence snapshot, seed, constants, policies, uncertainty, results, sensitivity, equations, and limitations. Export reproduces the run and rejects stale/altered outputs.
-- Model title/question/evidence/confidence reflected in the workspace. Unsupported explorations remain clearly labelled.
-- No external dependencies, credentials, analytics, Vercel, or Supabase.
+- Three interactive decision maps with contextual inspector, keyboard navigation, zoom, and persistent workspace state.
+- Transparent launch-v1 simulation: adjustable assumptions, seeded paired draws, strategy comparison, failure exposure, sensitivity, and central-input balance sheets.
+- Custom model context and economics, editable evidence/confidence, strict import schema, local autosave/library, JSON portability, and verified decision briefs.
+- Release polish: mobile node picker, scrolling-region access, visible focus, working skip/quick-start links, stronger text contrast/readability, no-JavaScript notice, and updated model labels.
+- Dependency-free static build supporting root or subdirectory hosting, GitHub verification/artifact workflow, quick-start/demo guide, deployment options, and reproducible browser QA script.
+- No Vercel, Supabase, external credentials, analytics, or runtime dependencies.
 
 ## Validation
 
-- PASS: npm run check — syntax for all six browser modules and the server.
-- PASS: npm test — 23/23 tests: four foundation tests, ten simulation tests, eight workbench tests, and one HTTP integration test.
-- Workbench tests verify import bounds/schema rejection, non-executable text preservation, custom economics, detached snapshots, model/brief round trips, active/library persistence, storage denial, full-library atomic rejection, and stale/forged result rejection.
-- HTTP integration follows every browser module import and verifies all modules, CSS, and HTML are served; unlisted project files return 404.
-- PASS: git diff --check.
-- Browser visual, interaction, file-download, and responsive QA remains pending. No browser-control tool has been available in this session; no deployed site is claimed.
+- PASS: syntax checks for all browser modules, server, and build script.
+- PASS: 23/23 Node tests and HTTP integration.
+- PASS: 14/14 real Chromium browser check groups against BOTH development server and built static site at /Codex-Project/.
+- PASS: actual model JSON and decision brief downloads; edit → apply → run → save → export/import → deterministic rerun → brief flow.
+- PASS: invalid/blank seed, blocked drafts, malformed/unsupported/oversized imports, corrupt/denied storage, safe evidence rendering, and stale-result invalidation.
+- PASS: no page overflow at 320/360/390/768/1440px; mobile picker and keyboard/modal/skip controls verified; screenshots inspected.
+- PASS: axe-core WCAG A/AA scans report zero violations on scanned editor/results screens at all five widths.
+- PASS: static build and git diff --check.
+- See docs/VERIFICATION.md for exact evidence and limits.
 
-## Step 4 instructions
+## Final readiness and limits
 
-Perform ONLY the release checkpoint from docs/BUILD_PLAN.md. Read README.md, docs/SIMULATION.md, and docs/WORKBENCH.md. Inspect current tools/runtime for the strongest available browser QA path, following applicable skill/environment instructions. Verify the complete model edit → apply → run → save → JSON export/import → rerun → brief flow, plus keyboard/mobile and invalid/error states. Fix observed issues and polish accessibility/responsive layouts. Add a usable quick-start/demo flow and deployment options that do not use Vercel or Supabase. Prepare a reviewable release artifact or PR in GitHub (do not merge or claim deployment without evidence). Record exact verification and remaining limits in docs/STATUS.md. Preserve user authorization and the staged scope; this is the final checkpoint. Finish with links, validation evidence, and limitations. Do not schedule another build task.
+The staged build is complete and ready for release review. GitHub PR approval/merge and hosting remain separate actions. No deployment is claimed. Chromium was tested; Safari, Firefox, real devices, and screen readers were not. Automated axe results do not establish full accessibility conformance. Only launch-v1 is numerically supported; its constants and uncertainty are illustrative/unverified. Saved models stay on the browser origin unless exported.
+
+Do not schedule another build task. If resumed, verify the release branch or PR instead of repeating the build.
