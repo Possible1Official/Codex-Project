@@ -1,0 +1,13 @@
+{
+  "name": "signal-atlas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A local-first decision laboratory for exploring assumptions and competing futures.",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "test": "node --test",
+    "check": "node --check src/app.js && node --check src/model.js && node --check server.mjs"
+  }
+}
