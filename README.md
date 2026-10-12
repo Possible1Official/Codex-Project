@@ -13,12 +13,14 @@ npm test
 npm run check
 ```
 
-## Checkpoint 1 of 4
+## Checkpoint 2 of 4
 
-Available: three curated decision maps, keyboard-selectable assumption and strategy nodes, an evidence inspector, zoom controls, a roadmap dialog, responsive layout, and local workspace persistence with recovery from corrupt or unavailable storage.
+Available: three curated decision maps, keyboard-selectable assumption and strategy nodes, evidence inspector, zoom controls, local persistence, and a launch simulation workbench.
 
-The current strategy descriptions and numbers are illustrative examples. They are not simulated predictions. The next checkpoint adds a transparent, reproducible scenario engine.
+For the launch exploration, adjust adoption, reliability, operating cost, and oversight; choose a seed; and run 1,000 reproducible Monte Carlo draws. Compare strategy net-value ranges and failure exposure, inspect one-at-a-time sensitivity, and follow a central-input cost breakdown. Input changes invalidate old results. Other explorations are clearly marked as having no numerical model.
 
-No Vercel or Supabase services are used. The application runs locally. Browser storage retains only the selected example, selected node, and zoom level. No external requests, analytics, or remote fonts are used.
+The equations, strategy policies, uncertainty distributions, units, and limits are documented in [the simulation specification](docs/SIMULATION.md) and in the application's model disclosure. Constants and distributions are illustrative; the output is not a validated forecast or recommendation.
+
+No Vercel or Supabase services are used. The application runs locally. Browser storage retains the selected example, selected node, zoom level, launch inputs, and seed. No external requests, analytics, or remote fonts are used.
 
 See [the build plan](docs/BUILD_PLAN.md) and [checkpoint status](docs/STATUS.md) for continuation instructions.
