@@ -1,0 +1,23 @@
+name: Verify Signal Atlas
+on:
+  push:
+    branches: [main, release/signal-atlas-v0.4]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signal-atlas-static-v0.4
+          path: dist/
+          if-no-files-found: error

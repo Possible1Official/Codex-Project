@@ -65,6 +65,12 @@ function renderGraph() {
   $('zoom-label').textContent = `${Math.round(state.zoom * 100)}%`;
   $('zoom-out').disabled = state.zoom <= 0.8;
   $('zoom-in').disabled = state.zoom >= 1.4;
+  $('node-select').replaceChildren();
+  for (const node of [...s.assumptions, {id:'decision', title:s.decision}, ...s.outcomes]) {
+    const option = document.createElement('option'); option.value = node.id; option.textContent = node.title;
+    $('node-select').append(option);
+  }
+  $('node-select').value = state.selectedId;
   if (focused) graph.querySelector(`[data-node="${focused}"]`)?.focus();
 }
 function renderInspector() {
@@ -72,7 +78,7 @@ function renderInspector() {
   const a = s.assumptions.find(a => a.id === state.selectedId);
   const o = s.outcomes.find(o => o.id === state.selectedId);
   if (a) {
-    $('inspector-content').innerHTML = `<p class="eyebrow inspector-type">ASSUMPTION / ${String(s.assumptions.indexOf(a) + 1).padStart(2, '0')}</p><h2>${a.title}</h2><div class="big-value">${simulation.value(a.id, a.value)}</div><div class="confidence"><i class="${simulation.confidence(a.id, a.confidence).toLowerCase()}"></i>${simulation.confidence(a.id, a.confidence)} confidence <span>EXAMPLE</span></div><p class="detail">${a.description}</p><div class="evidence"><p class="eyebrow">EVIDENCE TO LOOK FOR</p><p id="inspector-evidence"></p></div><p class="connected-label">CONNECTED TO</p><button id="follow-decision" class="connection-button">${s.decision}<span>→</span></button>`;
+    $('inspector-content').innerHTML = `<p class="eyebrow inspector-type">ASSUMPTION / ${String(s.assumptions.indexOf(a) + 1).padStart(2, '0')}</p><h2>${a.title}</h2><div class="big-value">${simulation.value(a.id, a.value)}</div><div class="confidence"><i class="${simulation.confidence(a.id, a.confidence).toLowerCase()}"></i>${simulation.confidence(a.id, a.confidence)} confidence <span>METADATA</span></div><p class="detail">${a.description}</p><div class="evidence"><p class="eyebrow">RECORDED EVIDENCE</p><p id="inspector-evidence"></p></div><p class="connected-label">CONNECTED TO</p><button id="follow-decision" class="connection-button">${s.decision}<span>→</span></button>`;
     $('inspector-evidence').textContent = simulation.evidence(a.id, a.evidence);
     $('follow-decision').addEventListener('click', () => selectNode('decision'));
   } else if (o) {
@@ -96,12 +102,18 @@ function renderPaths() {
 function render() {
   simulation.render(state.scenarioId, state.selectedId);
   renderScenarios();
+  $('map-model-badge').textContent = state.scenarioId === 'launch' ? 'ILLUSTRATIVE MODEL' : 'EXPLORATION ONLY';
   $('category').textContent = scenario().category;
   $('question').textContent = state.scenarioId === 'launch' ? simulation.metadata().question : scenario().question;
   $('scenario-summary').textContent = scenario().summary;
   renderGraph(); renderInspector(); renderPaths();
 }
 function zoom(delta) { state.zoom = Math.round(Math.max(0.8, Math.min(1.4, state.zoom + delta)) * 10) / 10; renderGraph(); save(); }
+$('node-select').addEventListener('change', () => selectNode($('node-select').value));
+$('start-exploring').addEventListener('click', () => {
+  state.scenarioId = 'launch'; state.selectedId = 'reliability'; render(); save();
+  $('simulation-run').scrollIntoView({block:'center'}); $('simulation-run').focus({preventScroll:true});
+});
 $('zoom-in').addEventListener('click', () => zoom(0.1));
 $('zoom-out').addEventListener('click', () => zoom(-0.1));
 $('zoom-reset').addEventListener('click', () => { state.zoom = 1; renderGraph(); save(); });
